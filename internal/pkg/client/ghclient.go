@@ -249,13 +249,15 @@ func (c Client) IssueWithLabels(org string, repos []string, issueLabels []string
 			}
 			for _, issue := range issues {
 
-				publishedDate := issue.GetCreatedAt()
-				startDate := time.Now().AddDate(0, 0, dayDiff)
-				log.Println("publishedDate", publishedDate, "start date", startDate, " if condition", publishedDate.Before(startDate))
+				if dayDiff != 0 {
+					publishedDate := issue.GetCreatedAt()
+					startDate := time.Now().AddDate(0, 0, dayDiff)
+					log.Println("publishedDate", publishedDate, "start date", startDate, " if condition", publishedDate.Before(startDate))
 
-				if publishedDate.Before(startDate) {
-					issueDateReached = true
-					break
+					if publishedDate.Before(startDate) {
+						issueDateReached = true
+						break
+					}
 				}
 
 				//check if the issue contains the desired labels or not
@@ -287,7 +289,8 @@ func (c Client) IssueWithLabels(org string, repos []string, issueLabels []string
 	return issueList, nil
 }
 
-/**
+/*
+*
 Utility function to check if the issue contains at least one of the desired labels
 */
 func doesIssueContainLabels(issue *github.Issue, allowedLabels []string) bool {
