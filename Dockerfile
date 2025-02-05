@@ -23,7 +23,6 @@ RUN make
 
 WORKDIR /appbin
 RUN cp /app/github-updates /appbin/
-RUN rm -r /app
 
 ENV PATH=${PATH}:/appbin
 
