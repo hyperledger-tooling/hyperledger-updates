@@ -19,3 +19,4 @@ deployments/.env
 #ignore docker compose file
 deployments/docker-compose.yaml
 .DS_Store
+.env

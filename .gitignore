@@ -24,3 +24,4 @@ assets/generated-data/*.json
 # Ignore .env file
 deployments/.env
 .DS_Store
+.env
