@@ -57,6 +57,7 @@ global:
         name: "Hyperledger Labs"
         github: "hyperledger-labs"
   scrape-duration-days: 7
+  max-records: 0 # to list everything, otherwise consider the maximum number of records in the summary
   # Set this to true and specify input/output files
   external-template:
     enabled: false
