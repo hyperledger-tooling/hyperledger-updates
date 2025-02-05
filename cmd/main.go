@@ -496,7 +496,7 @@ func recentPRs(prs []configs.ExternalPRDetails) []github.PullRequest {
 
 	// return the top n items
 	// n is 5 for now
-	return allPRs[:5]
+	return allPRs[:min(len(allPRs), 5)]
 }
 
 func recentIssues(issues []configs.ExternalIssueDetails) []github.Issue {
@@ -513,7 +513,7 @@ func recentIssues(issues []configs.ExternalIssueDetails) []github.Issue {
 
 	// return the top n items
 	// n is 5 for now
-	return allIssues[:5]
+	return allIssues[:min(len(allIssues), 5)]
 }
 
 func recentReleases(releases []configs.ExternalReleaseDetails) []github.RepositoryRelease {
@@ -530,5 +530,12 @@ func recentReleases(releases []configs.ExternalReleaseDetails) []github.Reposito
 
 	// return the top n items
 	// n is 5 for now
-	return allReleases[:5]
+	return allReleases[:min(len(allReleases), 5)]
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
