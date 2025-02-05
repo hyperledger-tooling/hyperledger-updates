@@ -65,6 +65,7 @@ type ElementExternalTemplate struct {
 type GlobalConfiguration struct {
 	Organizations    []Organization   `yaml:"organizations"`
 	DaysCount        int              `yaml:"scrape-duration-days"`
+	MaxRecords       int              `yaml:"max-records"`
 	ExternalTemplate ExternalTemplate `yaml:"external-template"`
 	RepoClass        string           `yaml:"scrape-repo-class"`
 }

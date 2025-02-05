@@ -78,6 +78,7 @@ func main() {
 			generateExternalPR(
 				config.PullRequests.PRExternalTemplate,
 				externalPRList,
+				config.GlobalConfiguration.MaxRecords,
 			)
 		if err != nil {
 			log.Fatalf("Failed to generate the report: %v, with template: %v. Error is: %v",
@@ -107,6 +108,7 @@ func main() {
 			generateExternalRelease(
 				config.Releases.ReleaseExternalTemplate,
 				externalReleaseList,
+				config.GlobalConfiguration.MaxRecords,
 			)
 		if err != nil {
 			log.Fatalf("Failed to generate the report: %v, with template: %v. Error is: %v",
@@ -136,6 +138,7 @@ func main() {
 			generateExternalIssue(
 				config.Issues.IssueExternalTemplate,
 				externalIssueList,
+				config.GlobalConfiguration.MaxRecords,
 			)
 		if err != nil {
 			log.Fatalf("Failed to generate the report: %v, with template: %v. Error is: %v",
@@ -237,6 +240,7 @@ func getExternalReports(config configs.Configuration,
 func generateExternalPR(
 	externalTemplate configs.ElementExternalTemplate,
 	values []configs.ExternalPRDetails,
+	maxRecords int,
 ) error {
 	if len(values) == 0 {
 		log.Println("External template file generation is not requested")
@@ -256,12 +260,13 @@ func generateExternalPR(
 	}
 
 	// store the trending info in summary file
-	return generateTopFile(recentPRs(values), externalTemplate)
+	return generateTopFile(recentPRs(values, maxRecords), externalTemplate)
 }
 
 func generateExternalIssue(
 	externalTemplate configs.ElementExternalTemplate,
 	values []configs.ExternalIssueDetails,
+	maxRecords int,
 ) error {
 	if len(values) == 0 {
 		log.Println("External template file generation is not requested")
@@ -281,12 +286,13 @@ func generateExternalIssue(
 	}
 
 	// store the trending info in summary file
-	return generateTopFile(recentIssues(values), externalTemplate)
+	return generateTopFile(recentIssues(values, maxRecords), externalTemplate)
 }
 
 func generateExternalRelease(
 	externalTemplate configs.ElementExternalTemplate,
 	values []configs.ExternalReleaseDetails,
+	maxRecords int,
 ) error {
 	if len(values) == 0 {
 		log.Println("External template file generation is not requested")
@@ -306,7 +312,7 @@ func generateExternalRelease(
 	}
 
 	// store the trending info in summary file
-	return generateTopFile(recentReleases(values), externalTemplate)
+	return generateTopFile(recentReleases(values, maxRecords), externalTemplate)
 }
 
 func generateExternalFile(
@@ -318,7 +324,7 @@ func generateExternalFile(
 	var err error
 	outputFileName := filename + filepath.Ext(externalTemplate.Input)
 	outputPath := path.Join(externalTemplate.Output, org)
-	err = os.MkdirAll(outputPath, 755)
+	err = os.MkdirAll(outputPath, 0755)
 	if err != nil {
 		return err
 	}
@@ -482,7 +488,7 @@ func getExpectedPullRequests(
 	return expectedPrs, false
 }
 
-func recentPRs(prs []configs.ExternalPRDetails) []github.PullRequest {
+func recentPRs(prs []configs.ExternalPRDetails, maxRecords int) []github.PullRequest {
 	// get the list of all PRs from across repositories
 	var allPRs []github.PullRequest
 	for _, pr := range prs {
@@ -496,10 +502,13 @@ func recentPRs(prs []configs.ExternalPRDetails) []github.PullRequest {
 
 	// return the top n items
 	// n is 5 for now
+	if maxRecords == 0 {
+		return allPRs
+	}
 	return allPRs[:min(len(allPRs), 5)]
 }
 
-func recentIssues(issues []configs.ExternalIssueDetails) []github.Issue {
+func recentIssues(issues []configs.ExternalIssueDetails, maxRecords int) []github.Issue {
 	// get the list of all PRs from across repositories
 	var allIssues []github.Issue
 	for _, issue := range issues {
@@ -513,10 +522,13 @@ func recentIssues(issues []configs.ExternalIssueDetails) []github.Issue {
 
 	// return the top n items
 	// n is 5 for now
+	if maxRecords == 0 {
+		return allIssues
+	}
 	return allIssues[:min(len(allIssues), 5)]
 }
 
-func recentReleases(releases []configs.ExternalReleaseDetails) []github.RepositoryRelease {
+func recentReleases(releases []configs.ExternalReleaseDetails, maxRecords int) []github.RepositoryRelease {
 	// get the list of all PRs from across repositories
 	var allReleases []github.RepositoryRelease
 	for _, release := range releases {
@@ -530,7 +542,10 @@ func recentReleases(releases []configs.ExternalReleaseDetails) []github.Reposito
 
 	// return the top n items
 	// n is 5 for now
-	return allReleases[:min(len(allReleases), 5)]
+	if maxRecords == 0 {
+		return allReleases
+	}
+	return allReleases[:min(len(allReleases), maxRecords)]
 }
 
 func min(a, b int) int {
